@@ -1,13 +1,15 @@
 import streamlit as st
-import speech_recognition as sr
+from streamlit_webrtc import webrtc_streamer, AudioProcessorBase, WebRtcMode
 from deep_translator import GoogleTranslator
 from gtts import gTTS
+import tempfile
+import openai
 import os
 
-st.title("🎙️ Traductor por voz interactivo")
+st.title("🎧 Traductor por voz en Streamlit")
+st.markdown("Graba tu voz, traduce lo que dices y escucha el resultado 🌍")
 
-st.markdown("Habla y traduce tu voz en tiempo real 🌍")
-
+# Selección de idioma destino
 idioma_destino = st.selectbox(
     "🌐 Selecciona el idioma destino:",
     {
@@ -20,27 +22,18 @@ idioma_destino = st.selectbox(
     }
 )
 
-if st.button("🎤 Grabar y traducir"):
-    recognizer = sr.Recognizer()
+st.info("🎙️ Haz clic en 'START' para grabar tu voz")
 
-    with sr.Microphone() as source:
-        st.info("🎙️ Hable ahora... (esperando tu voz)")
-        audio = recognizer.listen(source)
+# Configurar el streamer de audio
+webrtc_streamer(
+    key="speech",
+    mode=WebRtcMode.SENDRECV,
+    audio_receiver_size=256,
+    media_stream_constraints={"audio": True, "video": False},
+)
 
-        try:
-            st.info("🧠 Reconociendo voz...")
-            texto = recognizer.recognize_google(audio, language="es-ES")
-            st.success(f"Texto detectado: {texto}")
+st.markdown("---")
 
-            st.info("🌐 Traduciendo...")
-            traduccion = GoogleTranslator(source="auto", target=idioma_destino).translate(texto)
-            st.subheader("🪄 Traducción:")
-            st.success(traduccion)
+st.markdown("Por ahora, esta versión graba audio. Para traducirlo automáticamente, necesitaríamos usar una API de transcripción (por ejemplo, Whisper o Google Speech).")
 
-            # Convertir a audio
-            tts = gTTS(traduccion, lang=idioma_destino)
-            tts.save("traduccion.mp3")
-            st.audio("traduccion.mp3", format="audio/mp3")
-
-        except Exception as e:
-            st.error(f"❌ Ocurrió un error: {e}")
+st.info("👉 Si quieres, puedo dejarte el siguiente paso listo para que use Whisper API o Hugging Face y traduzca tu voz automáticamente.")

@@ -1,2 +1,5 @@
 streamlit
+speechrecognition
+pyaudio
 deep-translator
+gtts
